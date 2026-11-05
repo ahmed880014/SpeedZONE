@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeedZONE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:white;font-family:Arial,sans-serif;text-align:center}
+h1{color:#00e5ff;font-size:32px;margin:12px}
+.game{width:100%;max-width:420px;height:570px;margin:auto;background:#263238;position:relative;overflow:hidden;border:4px solid #00e5ff}
+.road{position:absolute;width:65%;height:100%;left:17.5%;background:#444;border-left:5px dashed white;border-right:5px dashed white}
+.car{position:absolute;bottom:25px;left:45%;width:42px;height:75px;background:#00d9ff;border-radius:12px;box-shadow:0 0 15px #00e5ff}
+.enemy{position:absolute;top:-90px;width:42px;height:75px;background:#ff3030;border-radius:12px}
+.score{font-size:22px;padding:10px;color:#00ff90}
+.controls{display:flex;justify-content:center;gap:35px;margin:15px}
+button{background:#00bcd4;color:white;border:0;border-radius:12px;padding:15px 28px;font-size:22px;font-weight:bold}
+#start{background:#00c853}
+</style>
+</head>
+<body>
+<h1>🏎️ SpeedZONE</h1>
+<div class="score">النقاط: <span id="score">0</span></div>
+<div class="game" id="game">
+  <div class="road"></div>
+  <div class="car" id="car"></div>
+  <div class="enemy" id="enemy"></div>
+</div>
+<div class="controls">
+  <button onclick="move(-1)">⬅️</button>
+  <button onclick="move(1)">➡️</button>
+</div>
+<button id="start" onclick="startGame()">ابدأ السباق</button>
+<p id="message">تجنب السيارات واجمع النقاط!</p>
+<script>
+let x=45,y=-90,score=0,running=false,speed=5,animation;
+const car=document.getElementById('car');
+const enemy=document.getElementById('enemy');
+const scoreText=document.getElementById('score');
+const message=document.getElementById('message');
+function move(direction){
+  if(!running)return;
+  x+=direction*10;
+  x=Math.max(20,Math.min(80,x));
+  car.style.left=x+'%';
+}
+function placeEnemy(){
+  y=-90;
+  enemy.style.top=y+'px';
+  enemy.style.left=(20+Math.random()*55)+'%';
+}
+function play(){
+  if(!running)return;
+  y+=speed;
+  if(y>570){
+    y=-90;score++;scoreText.textContent=score;
+    if(score%5===0)speed+=0.5;
+    enemy.style.left=(20+Math.random()*55)+'%';
+  }
+  enemy.style.top=y+'px';
+  const a=car.getBoundingClientRect(),b=enemy.getBoundingClientRect();
+  if(a.left<b.right-5&&a.right>b.left+5&&a.top<b.bottom-5&&a.bottom>b.top+5){
+    running=false;message.textContent='انتهى السباق! نقاطك: '+score;
+    document.getElementById('start').textContent='إعادة اللعب';return;
+  }
+  animation=requestAnimationFrame(play);
+}
+function startGame(){
+  cancelAnimationFrame(animation);
+  x=45;y=-90;score=0;speed=5;running=true;
+  car.style.left=x+'%';scoreText.textContent='0';
+  message.textContent='انطلق! تجنب السيارات!';
+  document.getElementById('start').textContent='إعادة اللعب';
+  placeEnemy();play();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')move(-1);
+  if(e.key==='ArrowRight')move(1);
+});
+</script>
+</body>
+</html>
